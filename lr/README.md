@@ -18,18 +18,18 @@ Execute: Real fully homomorphic encrypted inference.
 This script serves as a highly efficient, convex-optimization baseline compared to Deep Learning FHE pipelines.
 
 ## Dataset
-Script path used in experiments: data_p/data.address.csv
-
+Script path used in experiments:csv data_p/nanzero_normalization_data.address.csv
+you need to generate nanzero_normalization_data.address.csv with preprocessing.py
 Dataset link: https://drive.google.com/file/d/1m8IDCpQ_wWnK-ogoMDcvEz9nUWuh31Nq/view
 
 ## Main script
-fhe_lr_classification.py
+classification_lr_fhe.py
 
 ## Recommended usage
 Run the pipeline with all 4 feature categories (bemp) and 8-bit quantization:
 
 ```bash
-python fhe_lr_classification.py \
+python classification_lr_fhe.py \
   --data-file data_p/data.address.csv \
   --sample-fraction 1.0 \
   --use-class-weights \
