@@ -3,8 +3,8 @@
 | Field | Value |
 |---|---|
 | Model ID | |
-| Author | |
-| Date | |
+| Author | 余子安 luffy|
+| Date | 2026/04/01|
 | Status | Draft / Review / Final |
 
 ---
