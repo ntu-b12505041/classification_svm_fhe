@@ -29,16 +29,16 @@ classification_svm_fhe.py
 ## Recommended usage
 Run the pipeline with all 4 feature categories (bemp) and 8-bit quantization:
 
-```bash
-python classification_svm_fhe.py \
-  --data-file data_p/data.address.csv \
-  --sample-fraction 1.0 \
+"""
+python svm/classification_svm_fhe.py \
+  --data-file ./data_p/nanzero_normalization_data.address.csv \
+  --sample-fraction 0.1 \
   --use-class-weights \
   --svm-bits 5 \
   --simulate-max-samples 4096 \
-  --execute-samples 256 \
+  --execute-samples 64 \
   --save-results
-```
+"""
 ## Output files
 Results are saved under the result/ directory, for example:
 
