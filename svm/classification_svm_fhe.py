@@ -152,7 +152,7 @@ def process_and_print_metrics(
 
     # Print "戰報" (Battle Report)
     print("="*60)
-    print(f" 📊 {title}")
+    print(f"  {title}")
     print("="*60)
     print(f"  Overall Accuracy : {overall_acc:.4f}")
     print(f"  Macro Precision  : {report['macro avg']['precision']:.4f}")
@@ -206,7 +206,7 @@ def main() -> None:
     if not data_file.exists():
         raise FileNotFoundError(f"Dataset not found at: {data_file}")
 
-    print(f"📂 Loading data from {data_file} (fraction: {args.sample_fraction})...")
+    print(f" Loading data from {data_file} (fraction: {args.sample_fraction})...")
     data = load_sample(data_file, args.sample_fraction, args.random_state)
     features = build_feature_list(args.feature_type)
     
@@ -230,7 +230,7 @@ def main() -> None:
         X, y, test_size=args.test_size, stratify=y, random_state=args.random_state
     )
 
-    print("⚖️ Normalizing data (MinMaxScaler)...")
+    print(" Normalizing data (MinMaxScaler)...")
     scaler = MinMaxScaler()
     X_train = scaler.fit_transform(X_train)
     X_test = scaler.transform(X_test)
@@ -238,7 +238,7 @@ def main() -> None:
     # 3. Class Weights (Square Root Smoothing)
     sample_weight = np.ones((len(y_train), ), dtype='float64')
     if args.use_class_weights:
-        print("⚖️ Applying smoothed class weights...")
+        print(" Applying smoothed class weights...")
         unique_classes = np.unique(y_train)
         balanced_weights = compute_class_weight('balanced', classes=unique_classes, y=y_train)
         smoothed_weights = np.sqrt(balanced_weights)
@@ -246,13 +246,13 @@ def main() -> None:
         sample_weight = np.array([weight_dict[y_cls] for y_cls in y_train])
 
     # 4. Train FHE SVM
-    print(f"\n🧠 Initializing FHE LinearSVC (n_bits={args.svm_bits})...")
+    print(f"\n Initializing FHE LinearSVC (n_bits={args.svm_bits})...")
     clf = LinearSVC(n_bits=args.svm_bits)
     
     train_t0 = time.time()
     clf.fit(X_train, y_train, sample_weight=sample_weight)
     train_time = time.time() - train_t0
-    print(f"✅ Training completed in {train_time:.2f} s")
+    print(f" Training completed in {train_time:.2f} s")
 
     # 5. Compile Circuit
     calib_size = min(args.calibration_max_samples, X_train.shape[0])
@@ -262,7 +262,7 @@ def main() -> None:
     compile_t0 = time.time()
     circuit = clf.compile(X_train[calib_idx])
     compile_time = time.time() - compile_t0
-    print(f"✅ Compilation finished in {compile_time:.2f} s | Max integer bit width: {circuit.graph.maximum_integer_bit_width()} bits")
+    print(f" Compilation finished in {compile_time:.2f} s | Max integer bit width: {circuit.graph.maximum_integer_bit_width()} bits")
 
     # =========================================================
     # 6. Evaluation (Plaintext, Simulate, Execute)
@@ -277,11 +277,11 @@ def main() -> None:
     sim_n = min(args.simulate_max_samples, len(X_test))
     X_sim, y_sim = X_test[:sim_n], y_test[:sim_n]
     
-    print(f"\n🔮 Extracting {sim_n} samples for FHE Simulate...")
+    print(f"\n Extracting {sim_n} samples for FHE Simulate...")
     sim_t0 = time.time()
     y_pred_sim = clf.predict(X_sim, fhe="simulate")
     sim_time = time.time() - sim_t0
-    print(f"✅ Simulation completed in {sim_time:.2f} s")
+    print(f" Simulation completed in {sim_time:.2f} s")
     
     sim_metrics = process_and_print_metrics(f"FHE Simulate (N={sim_n})", y_sim, y_pred_sim, class_names)
 
@@ -289,11 +289,11 @@ def main() -> None:
     exec_n = min(args.execute_samples, len(X_test))
     X_exec, y_exec = X_test[:exec_n], y_test[:exec_n]
     
-    print(f"\n🔒 Extracting {exec_n} samples for Real FHE Execute...")
+    print(f"\n Extracting {exec_n} samples for Real FHE Execute...")
     exec_t0 = time.time()
     y_pred_exec = clf.predict(X_exec, fhe="execute")
     exec_time = time.time() - exec_t0
-    print(f"✅ Execution completed in {exec_time:.2f} s")
+    print(f" Execution completed in {exec_time:.2f} s")
     
     exec_metrics = process_and_print_metrics(f"Real FHE Execute (N={exec_n})", y_exec, y_pred_exec, class_names)
 
