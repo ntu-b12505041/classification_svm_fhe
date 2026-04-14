@@ -3,8 +3,8 @@
 | Field | Value |
 |---|---|
 | Model ID | |
-| Author | |
-| Date | |
+| Author | 余子安 luffy|
+| Date | 2026/04/01|
 | Status | Draft / Review / Final |
 
 ---
@@ -72,10 +72,9 @@
 
 | Field | Value |
 |---|---|
-| Framework + Version | Scikit-Learn + Concrete-ML|
-| Concrete-ML Version | |
+| Framework + Version | Scikit-Learn(1.5.0) + Concrete-ML(1.9.0)|
 | Hardware |CPU |
-| OS / CUDA |LINUX |
+| OS / CUDA |LINUX/N0 |
 | Random Seed |42 |
 | Training Duration |58.96 秒 |
 | Epochs / Iterations N/A| |

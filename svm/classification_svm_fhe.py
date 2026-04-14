@@ -1,17 +1,13 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
-usage:
-python fhe_svm_classification.py \
-  --data-file data_p/data.address.csv \
-  --sample-fraction 0.04 \
+python svm/classification_svm_fhe.py \
+  --data-file ./data_p/nanzero_normalization_data.address.csv \
+  --sample-fraction 0.1 \
   --use-class-weights \
   --svm-bits 5 \
   --simulate-max-samples 4096 \
-  --execute-samples 256 \
+  --execute-samples 64 \
   --save-results
 """
-
 import argparse
 import json
 import os
@@ -27,8 +23,6 @@ from sklearn.metrics import accuracy_score, classification_report, confusion_mat
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.utils.class_weight import compute_class_weight
-
-import concrete.compiler
 from concrete.ml.sklearn import LinearSVC
 
 # -----------------------------------------------------------------------------
@@ -220,6 +214,14 @@ def main() -> None:
     y = data['class'].values.astype(np.int64)
     class_names = ["Exchange", "Faucet", "Gambling", "Market", "Mixer", "Pool"]
 
+    valid_labels = list(range(len(class_names)))
+    data = data[data['class'].isin(valid_labels)].copy()
+    
+    class_counts = data['class'].value_counts()
+    valid_classes_with_enough_samples = class_counts[class_counts >= 2].index
+    data = data[data['class'].isin(valid_classes_with_enough_samples)].copy()
+    X = data.get(features).values.astype(np.float32)
+    y = data['class'].values.astype(np.int64)
     print(f"  Data shape: {X.shape}")
     print(f"  Classes: {class_names}")
 
@@ -244,8 +246,7 @@ def main() -> None:
         sample_weight = np.array([weight_dict[y_cls] for y_cls in y_train])
 
     # 4. Train FHE SVM
-    fhe_device = "cuda" if concrete.compiler.check_gpu_available() else "cpu"
-    print(f"\n🧠 Initializing FHE LinearSVC (n_bits={args.svm_bits}) on {fhe_device.upper()}...")
+    print(f"\n🧠 Initializing FHE LinearSVC (n_bits={args.svm_bits})...")
     clf = LinearSVC(n_bits=args.svm_bits)
     
     train_t0 = time.time()
@@ -259,7 +260,7 @@ def main() -> None:
     
     print(f"\n⏳ Compiling FHE circuit using {calib_size} calibration samples...")
     compile_t0 = time.time()
-    circuit = clf.compile(X_train[calib_idx], device=fhe_device)
+    circuit = clf.compile(X_train[calib_idx])
     compile_time = time.time() - compile_t0
     print(f"✅ Compilation finished in {compile_time:.2f} s | Max integer bit width: {circuit.graph.maximum_integer_bit_width()} bits")
 
